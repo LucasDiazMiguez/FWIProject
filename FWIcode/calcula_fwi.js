@@ -51,6 +51,8 @@ function corroborarDatos() {
   DC = Number(document.getElementById("idDC").value);
   //! TODO agregar una correción de datos importantes! corrobando que datos son correctos y que datos no, y haya ingresado todos  los datos
   console.log(`FFMC`, FFMC);
+  console.log(`DMC`, DMC);
+  console.log(`DC`, DC);
   if (true) {
     document.getElementById("results-table").innerHTML = `
     <table style="width:100%" id="data-table">
@@ -76,7 +78,7 @@ function corroborarDatos() {
 }
 function calculaIndices(datos) {
   hh = datos[2]; //Humedad
-  tt = datos[1]; //Temperatura
+  tt = Number(datos[1].replace(/,/g, ".")); //Temperatura
   ww = datos[4]; //viento
   ro = datos[5]; //lluvia
   let fecha = datos[0];
@@ -84,6 +86,7 @@ function calculaIndices(datos) {
   // console.log(`mes`,mes)
   // console.log(`mes`,typeof(mes))
   FFMC = calculaFFMC(hh, tt, ww, ro, FFMC);
+  console.log(`DMC`, DMC);
   DMC = calculaDMC(hh, tt, ro, DMC, mes - 1); // usa mes como índice que comienza en 0
   DC = calculaDC(tt, ro, DC, mes - 1); // usa mes como índice que comienza en 0
   ISI = calculaISI(FFMC, ww);
@@ -91,7 +94,6 @@ function calculaIndices(datos) {
   FWI = calculaFWI(BUI, ISI);
 
   DSR = 0.0272 * Math.pow(FWI, 1.77); //(31)
-  console.log("estoy acá");
   document.getElementById("data-table").innerHTML =
     document.getElementById("data-table").innerHTML +
     `<tr>
@@ -125,109 +127,118 @@ function calculaIndices(datos) {
 
 //----------:------------------------------------------------------------------------//
 // HH: humedad relativa, TT: temperatura, WW: velocidad viento, Ro: lluvia anterior, Fo: FFMC anterior: FFMC cero
-function calculaFFMC(HH, TT, WW, Ro, Fo)
-{
-  let mo,mr, rf, Ed,Ew,  ko,kd,k1,kw, m;
+function calculaFFMC(HH, TT, WW, Ro, Fo) {
+  let mo, mr, rf, Ed, Ew, ko, kd, k1, kw, m;
   let F;
-  
+
   /* Fine fuel moisture code (FFMC) */
-  mo = 147.2*(101 - Fo)/(59.5 + Fo);
-  rf = ( Ro > 0.5? Ro - 0.5: 0);
-  
-  mr = mo + 42.5 * rf * Math.exp(-100/(251-mo))*(1 - Math.exp(-6.93/rf));  // (3a)
-  if (mo > 150) 
-    mr += 0.0015 * (mo - 150) * (mo - 150) * Math.sqrt(rf);           // (3b)
-  mo = (mr > 250? 250: mr);                                      // mo toma el valor de mr, pero debe ser menor que 250
-  
-  Ed = 0.942 * Math.pow(HH,0.679) + 11 * Math.exp((HH-100)/10.0) + 0.18 * (21.1 - TT) * (1 - Math.exp(-0.115*HH));     // (4)
+  mo = (147.2 * (101 - Fo)) / (59.5 + Fo);
+  rf = Ro > 0.5 ? Ro - 0.5 : 0;
+
+  mr =
+    mo + 42.5 * rf * Math.exp(-100 / (251 - mo)) * (1 - Math.exp(-6.93 / rf)); // (3a)
+  if (mo > 150) mr += 0.0015 * (mo - 150) * (mo - 150) * Math.sqrt(rf); // (3b)
+  mo = mr > 250 ? 250 : mr; // mo toma el valor de mr, pero debe ser menor que 250
+
+  Ed =
+    0.942 * Math.pow(HH, 0.679) +
+    11 * Math.exp((HH - 100) / 10.0) +
+    0.18 * (21.1 - TT) * (1 - Math.exp(-0.115 * HH)); // (4)
   if (mo > Ed) {
-    ko = 0.424 * (1 - Math.pow(HH/100.0,1.7)) + 0.0694 * Math.sqrt(WW) * (1 - Math.pow(HH/100.0,8));                   // (6a)
-    kd = ko * 0.581 * Math.exp(0.0365 * TT);                                                                 // (6b)
-    m = Ed + (mo - Ed) * Math.pow(10,-kd);                                                                   // (8)  
+    ko =
+      0.424 * (1 - Math.pow(HH / 100.0, 1.7)) +
+      0.0694 * Math.sqrt(WW) * (1 - Math.pow(HH / 100.0, 8)); // (6a)
+    kd = ko * 0.581 * Math.exp(0.0365 * TT); // (6b)
+    m = Ed + (mo - Ed) * Math.pow(10, -kd); // (8)
   } else {
-    Ew = 0.618 * Math.pow(HH,0.753) + 10 * Math.exp((HH-100)/10.0) + 0.18 * (21.1 - TT) * (1 - Math.exp(-0.115*HH));   // (5)
+    Ew =
+      0.618 * Math.pow(HH, 0.753) +
+      10 * Math.exp((HH - 100) / 10.0) +
+      0.18 * (21.1 - TT) * (1 - Math.exp(-0.115 * HH)); // (5)
     if (mo < Ew) {
-      k1 = 0.424 * (1 - Math.pow( (1 - HH/100.0), 1.7)) + 0.0694 * Math.sqrt(WW) * (1 - Math.pow( (1 - HH/100.0), 8)); // (7a)
-      kw = k1 * 0.581 * Math.exp(0.0365 * TT);                                                               // (7b)
-      m = Ew + (mo - Ew) * Math.pow(10,-kw);                                                                 // (9)
+      k1 =
+        0.424 * (1 - Math.pow(1 - HH / 100.0, 1.7)) +
+        0.0694 * Math.sqrt(WW) * (1 - Math.pow(1 - HH / 100.0, 8)); // (7a)
+      kw = k1 * 0.581 * Math.exp(0.0365 * TT); // (7b)
+      m = Ew + (mo - Ew) * Math.pow(10, -kw); // (9)
     } else m = mo;
   }
-  F = 59.5 * (250 - m)/(147.2 + m);                                                                     // (10)
-  
+  F = (59.5 * (250 - m)) / (147.2 + m); // (10)
+
   return F;
-}  
+}
 
 //----------------------------------------------------------------------------------//
-function calculaDMC(HH, TT, Ro, Po, MM)
-{
+function calculaDMC(HH, TT, Ro, Po, MM) {
   let re, Mo, b, Mr, Pr, K;
-  
+  console.log(`Po----→`, Po);
   if (Ro > 1.5) {
-    re = 0.9*Ro - 1.27;                         // (11)
-    Mo = 20 + Math.exp(5.6348 - Po/43.43);           // (12)
+    re = 0.9 * Ro - 1.27; // (11)
+    Mo = 20 + Math.exp(5.6348 - Po / 43.43); // (12)
 
-    if (Po<=33) b = 100/(0.5 + 0.3*Po);         // (13a)
-    else if (Po<=65) b = 14 - 1.3*log(Po);      // (13b)
-    else b = 6.2*log(Po) - 17.2;                // (13c)
-  
-    Mr = Mo + 1000*re/(48.77 + b*re);           // (14)
-    Pr = 244.72 - 43.43*log(Mr-20);             // (15)
-    Po = (Pr < 0? 0: Pr);
-  } 
-  TT = (TT < -1.1? -1.1: TT);
-  K = 1.894*(TT + 1.1) * (100-HH) * Les[Hem][MM] * 0.0001; // (16)
-
-  return (Po + K);                              // (17)  no multiplica K por 100 porque en (16) multip.por 10^-4
-}  
-
-//----------------------------------------------------------------------------------//
-function calculaDC(TT,  Ro,  Do, MM)
-{
-  let rd, Qr, Dr, V;
-  
-  if (Ro > 2.8) {
-    rd = 0.83*Ro - 1.27;                        // (18)
-    Qr = 800 * Math.exp(-Do/400.0) + 3.937*rd;       // (19, 20)
-    Dr = 400 * log(800.0 / Qr);                 // (21)
-    Do = (Dr < 0? 0: Dr);
+    if (Po <= 33) b = 100 / (0.5 + 0.3 * Po);
+    // (13a)
+    else if (Po <= 65) b = 14 - 1.3 * Math.log(Po);
+    // (13b)
+    else b = 6.2 * Math.log(Po) - 17.2; // (13c)
+    Mr = Mo + (1000 * re) / (48.77 + b * re); // (14)
+    Pr = 244.72 - 43.43 * Math.log(Mr - 20); // (15)
+    Po = Pr < 0 ? 0 : Pr;
   }
-  TT = (TT < -2.8? -2.8: TT);  
-  V = 0.36 * (TT + 2.8) + Lfs[Hem][MM];         // (22)
-  V = (V < 0? 0: V);
-    
-  return Do + 0.5 * V;                          // (23)
+  TT = TT < -1.1 ? -1.1 : TT;
+  K = 1.894 * (TT + 1.1) * (100 - HH) * Les[Hem][MM] * 0.0001; // (16)
+  return Po + K; // (17)  no multiplica K por 100 porque en (16) multip.por 10^-4
 }
 
 //----------------------------------------------------------------------------------//
-function calculaISI(F,  WW)
-{
+function calculaDC(TT, Ro, Do, MM) {
+  let rd, Qr, Dr, V;
+
+  if (Ro > 2.8) {
+    rd = 0.83 * Ro - 1.27; // (18)
+    Qr = 800 * Math.exp(-Do / 400.0) + 3.937 * rd; // (19, 20)
+    Dr = 400 * Math.log(800.0 / Qr); // (21)
+    Do = Dr < 0 ? 0 : Dr;
+  }
+  TT = TT < -2.8 ? -2.8 : TT;
+  V = 0.36 * (TT + 2.8) + Lfs[Hem][MM]; // (22)
+  V = V < 0 ? 0 : V;
+
+  return Do + 0.5 * V; // (23)
+}
+
+//----------------------------------------------------------------------------------//
+function calculaISI(F, WW) {
   let m, fW, fF;
-  fW = Math.exp(0.05038*WW);                              // (24)
-  m = 147.2*(101 - F)/(59.5 + F);
-  fF = 91.9*Math.exp(-0.1386*m)*(1+Math.pow(m,5.31)/(4.93e7)); // (25)
-  return 0.208 * fW * fF;                            // (26)
+  fW = Math.exp(0.05038 * WW); // (24)
+  m = (147.2 * (101 - F)) / (59.5 + F);
+  fF = 91.9 * Math.exp(-0.1386 * m) * (1 + Math.pow(m, 5.31) / 4.93e7); // (25)
+  return 0.208 * fW * fF; // (26)
 }
 
 //----------------------------------------------------------------------------------//
-function calculaBUI(P,  D)
-{
+function calculaBUI(P, D) {
   let U;
-  if (P <= 0.4*D) U = 0.8*D*P/(P+0.4*D);             // (27a)
-  else U = P - (1-0.8*D/(P+0.4*D)) * (0.92 + Math.pow(0.0114*P, 1.7)); //(27b)
-  return (U<0? 0: U);                                // de acuerdo al Excel
+  if (P <= 0.4 * D) U = (0.8 * D * P) / (P + 0.4 * D);
+  // (27a)
+  else
+    U =
+      P - (1 - (0.8 * D) / (P + 0.4 * D)) * (0.92 + Math.pow(0.0114 * P, 1.7)); //(27b)
+  return U < 0 ? 0 : U; // de acuerdo al Excel
 }
 
 //----------------------------------------------------------------------------------//
-function calculaFWI(U,  R)
-{
-  let fD, S,B;
-  if (U > 80) fD = 1000/(25+108.64*Math.exp(-0.023*U));   // (28b)
-  else fD = 0.626*Math.pow(U,0.809) + 2;                  // (28a)
-  B = 0.1 * R * fD;                                  // (29)
+function calculaFWI(U, R) {
+  let fD, S, B;
+  if (U > 80) fD = 1000 / (25 + 108.64 * Math.exp(-0.023 * U));
+  // (28b)
+  else fD = 0.626 * Math.pow(U, 0.809) + 2; // (28a)
+  B = 0.1 * R * fD; // (29)
 
-  if (B>1) S = Math.exp(2.72*Math.pow(0.434*log(B),0.647));     // (30a)
-  else S = B;                                        // (30b)
-  
+  if (B > 1) S = Math.exp(2.72 * Math.pow(0.434 * Math.log(B), 0.647));
+  // (30a)
+  else S = B; // (30b)
+
   return S;
 }
 
@@ -248,6 +259,7 @@ function workingWithData() {
     });
     // textarea.value = lines.join(`\n`);
   };
+
   reader.onerror = (e) => alert(e.target.error.name);
   reader.readAsText(file);
 }
