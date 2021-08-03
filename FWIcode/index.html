@@ -1,36 +1,55 @@
-<!DOCTYPE HTML>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FWI project</title>
   <script src="https://unpkg.com/read-excel-file@4.x/bundle/read-excel-file.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
 </head>
 
 <body>
-
-
-  <!--   <input type="file" onchange="showFile(this)">  -->
-
   <p>Calcula FWI</p>
   <!--  <input id="id1" type="number" min="100" max="550" required> -->
-  <h3>Ingrese los primeros valores iniciales: </h3>
-  <label> FFMC <input id="idFFMC" type="number" value=21.2 required> </label>
-  <label> DMC <input id="idDMC" type="number" value=0.1 required> </label>
-  <label> DC <input id="idDC" type="number" value=0.6 required> </label>
-  <!-- <p> humedad <input id="idHH" type="number" value=64 required> </p>
-    <p> temperatura <input id="idTT" type="number" value=6.7 required> </p>
-    <p> wind <input id="idWW" type="number" value=33 required> </p>
-    <p> lluvia <input id="idRO" type="number" value=0 required> </p>
-    <p> mes <input id="idMES" type="number" value=9 required> </p> -->
+  <h3>Ingrese los primeros valores iniciales y el archivo .txt : </h3>
+  <div class="d-flex m-3 p-3 justify-content-start">
+    <label class="p-3"> FFMC <input id="idFFMC" type="number" value=21.2 required> </label>
+    <label class="p-3"> DMC <input id="idDMC" type="number" value=0.1 required> </label>
+    <label class="p-3"> DC <input id="idDC" type="number" value=0.6 required> </label>
 
-    
-    <button onclick="corroborarDatos()"> Ingresar datos</button>
-    <div id="results-table">
-      
+  </div>
+  <input class=" m-4 p-4" type="file" id="input-file">
+  <!-- <div class="container">
+    <div class="row">
+      <div class="col-2">
+
+      </div>
+      <div class="col-2">
+
+      </div>
+      <div class="col-2">
+
+      </div>
+      <div class="col-2">
+
+      </div>
     </div>
-    
-    <script src="calcula_fwi.js"></script>
-  <!--
-  <script> 
+  </div> -->
+
+
+  <button class="m-4 p-1" onclick="corroborarDatos()"> Calcular FWI</button>
+  <div id="results-table">
+
+  </div>
+
+  <script src="calcula_fwi.js"></script>
+</body>
+
+</html>
+<!-- <script> 
   "use strict";  // the script works the “modern” way
   function showFile(input) {
       let file = input.files[0];
@@ -38,11 +57,6 @@
       alert(`File name: ${file.name}`); // e.g my.png
       alert(`Last modified: ${file.lastModified}`); // e.g 1552830408824
     }
-  </script>
+  </script> -->
 
-  <p>...After the script.</p>
--->
-
-</body>
-
-</html>
+  <!-- ! Grabar un archivo de salida -->

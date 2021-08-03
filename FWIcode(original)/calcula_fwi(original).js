@@ -1,7 +1,9 @@
+
+
 /***********************************************************************************************************************************
  *                                                                                                                                 *
- * Este programa IMPLEMENTA las ecuaciones definidas para el cálculo del Fire Wheather Index (FWI) definidas                       *
- * por el Canadian Forestry Service. Forestry Technical Report 35 (Ottawa 1987) y publicadas en múltiples                          *
+ * Este programa IMPLEMENTA las ecuaciones definidas para el cálculo del Fire Wheather Index (FWI) definidas                       *                     
+ * por el Canadian Forestry Service. Forestry Technical Report 35 (Ottawa 1987) y publicadas en múltiples                          * 
  * trabajos (C. E. Van Wagner et all). Se respetan completamente las ecuaciones definidas en "FWI_Equations_FORTRAN.pdf"           *
  * y "Cálculo_Bariloche_2017-2018.xlsx". NO HAY GARANTIA ALGUNA DE SUS RESULTADOS NI DE SU USO ESPECIFICO.                         *
  *                                                                                                                                 *
@@ -13,116 +15,53 @@
  *                                                                                                                                 *
  **********************************************************************************************************************************/
 
-"use strict"; // the script works the “modern” way
+"use strict";  // the script works the “modern” way
 
 // effective day-lengths per month for DMC (Daylength factor Le)  /// FLOAT Les[HEMISFERIOS][MESES]
-//let
-const Les = [
-  [11.5, 10.5, 9.2, 7.9, 6.8, 6.2, 6.5, 7.4, 8.7, 10, 11.2, 11.8], // South hemisph.
-  [6.5, 7.5, 9, 12.8, 13.9, 13.9, 12.4, 10.9, 9.4, 8, 7, 6],
-]; // North hemisph.
+ //let
+ const Les = [[11.5,10.5, 9.2, 7.9, 6.8, 6.2,6.5, 7.4, 8.7,10,11.2,11.8],              // South hemisph.
+              [6.5,7.5,9,12.8,13.9,13.9,12.4,10.9,9.4,8,7,6]];                         // North hemisph.
 
-// daylength adjustment Lf for DC    /// FLOAT Lfs[HEMISFERIOS][MESES]
-const Lfs = [
-  [6.4, 5, 2.4, 0.4, -1.6, -1.6, -1.6, -1.6, -1.6, 0.9, 3.8, 5.8], // South hemisph.
-  [-1.6, -1.6, -1.6, 0.9, 3.8, 5.8, 6.4, 5, 2.4, 0.4, -1.6, -1.6],
-]; // North hemisph.
+// daylength adjustment Lf for DC    /// FLOAT Lfs[HEMISFERIOS][MESES]                 
+ const Lfs = [[6.4,5,2.4,0.4,-1.6,-1.6,-1.6,-1.6,-1.6,0.9,3.8,5.8],                    // South hemisph.
+              [-1.6,-1.6,-1.6,0.9,3.8,5.8,6.4,5,2.4,0.4,-1.6,-1.6]];                   // North hemisph.
 
 const Hem = 0;
 
 let ISI, BUI, FWI, DSR;
-
-let hh = 64,
-  tt = 6.7,
-  ww = 33,
-  ro = 0;
-let mes = 9;
+let FFMC=21.2, DMC=0.1, DC=0.6;
+let hh=64,tt=6.7,ww=33,ro=0;
+let mes=9;
 
 //----------------------------------------------------------------------------------//
-
-//? Variables GLOBALES
-let FFMC;
-let DMC;
-let DC;
-
-function corroborarDatos() {
-  FFMC = Number(document.getElementById("idFFMC").value);
-  DMC = Number(document.getElementById("idDMC").value);
-  DC = Number(document.getElementById("idDC").value);
-  //! TODO agregar una correción de datos importantes! corrobando que datos son correctos y que datos no, y haya ingresado todos  los datos
-  console.log(`FFMC`, FFMC);
-  if (true) {
-    document.getElementById("results-table").innerHTML = `
-    <table style="width:100%" id="data-table">
-      <tr>
-        <th>Fecha</th>
-        <th>Temperatura </th>
-        <th>Humedad Relativa</th>
-        <th>Dirección del viento</th>
-        <th>Velocidad del viento</th>
-        <th>precipitaciones</th>
-        <th>FFMC</th>
-        <th>DMC</th>
-        <th>DC</th>
-        <th>ISI</th>
-        <th>BUI</th>
-        <th>FWI</th>
+function calculaIndices() {
+    FFMC = Number(document.getElementById("idFFMC").value);
+    DMC = Number(document.getElementById("idDMC").value);
+    DC = Number(document.getElementById("idDC").value);
+    hh = Number(document.getElementById("idHH").value);
+    tt = Number(document.getElementById("idTT").value);
+    ww = Number(document.getElementById("idWW").value);
+    ro = Number(document.getElementById("idRO").value);
+    mes = Number(document.getElementById("idMES").value);    
         
-      </tr>
-    </table> 
-    `;
-    workingWithData();
-  }
-}
-function calculaIndices(datos) {
-  hh = datos[2]; //Humedad
-  tt = datos[1]; //Temperatura
-  ww = datos[4]; //viento
-  ro = datos[5]; //lluvia
-  let fecha = datos[0];
-  mes = `${fecha[4]}${fecha[5]}`; //mes
-  // console.log(`mes`,mes)
-  // console.log(`mes`,typeof(mes))
-  FFMC = calculaFFMC(hh, tt, ww, ro, FFMC);
-  DMC = calculaDMC(hh, tt, ro, DMC, mes - 1); // usa mes como índice que comienza en 0
-  DC = calculaDC(tt, ro, DC, mes - 1); // usa mes como índice que comienza en 0
-  ISI = calculaISI(FFMC, ww);
-  BUI = calculaBUI(DMC, DC);
-  FWI = calculaFWI(BUI, ISI);
+    FFMC = calculaFFMC(hh,tt,ww,ro,FFMC);
+    DMC = calculaDMC(hh,tt,ro,DMC,mes-1);  // usa mes como índice que comienza en 0
+    DC = calculaDC(tt,ro,DC,mes-1);        // usa mes como índice que comienza en 0
+    ISI = calculaISI(FFMC,ww);
+    BUI = calculaBUI(DMC,DC);
+    FWI = calculaFWI(BUI,ISI);
 
-  DSR = 0.0272 * Math.pow(FWI, 1.77); //(31)
-  console.log("estoy acá");
-  document.getElementById("data-table").innerHTML =
-    document.getElementById("data-table").innerHTML +
-    `<tr>
-      <td> ${fecha}</td>
-      <td> ${tt}</td>
-      <td> ${hh}</td>
-      <td> ${datos[3]}</td>
-      <td> ${ww}</td>
-      <td> ${ro}</td>
-      <td> ${FFMC.toFixed(3)}</td>
-      <td> ${DMC.toFixed(3)}</td>
-      <td> ${DC.toFixed(3)}</td>
-      <td> ${ISI.toFixed(3)}</td>
-      <td> ${BUI.toFixed(3)}</td>
-      <td> ${FWI.toFixed(3)}</td>
-    </tr>`;
-  // "nuevos valores: " +
-  // "FFMC=" +
-  // FFMC.toFixed(3) +
-  // ", DMC=" +
-  // DMC.toFixed(3) +
-  // ", DC=" +
-  // DC.toFixed(3) +
-  // ", ISI=" +
-  // ISI.toFixed(3) +
-  // ", BUI=" +
-  // BUI.toFixed(3) +
-  // ", FWI=" +
-  // FWI.toFixed(3);
+    DSR = 0.0272 * Math.pow(FWI,1.77); //(31)
+    
+    document.getElementById("resultados").innerHTML = "nuevos valores: " +
+      "FFMC=" + FFMC.toFixed(3) + ", DMC=" + DMC.toFixed(3) + ", DC=" + DC.toFixed(3) + 
+      ", ISI=" + ISI.toFixed(3) + ", BUI=" + BUI.toFixed(3) + ", FWI=" + FWI.toFixed(3);
 }
 
+
+
+              
+              
 //----------:------------------------------------------------------------------------//
 // HH: humedad relativa, TT: temperatura, WW: velocidad viento, Ro: lluvia anterior, Fo: FFMC anterior: FFMC cero
 function calculaFFMC(HH, TT, WW, Ro, Fo)
@@ -231,28 +170,8 @@ function calculaFWI(U,  R)
   return S;
 }
 
-function workingWithData() {
-  const input = document.getElementById("input-file");
-  let files = input.files;
-  if (files.length == 0) return;
-  const file = files[0];
-  let reader = new FileReader();
-  reader.onload = (e) => {
-    const file = e.target.result;
-    const lines = file.split(/\r\n|\n/);
-    const table = document.getElementById("data-table");
-    lines.forEach((e) => {
-      let datos = e.split(/[ \t]+/);
 
-      calculaIndices(datos);
-    });
-    // textarea.value = lines.join(`\n`);
-  };
-  reader.onerror = (e) => alert(e.target.error.name);
-  reader.readAsText(file);
-}
 
-const obj = [{}];
 //----------------------------------------------------------------------------------//
 /*
 function peligrosidadXtipo(isi, bui, GSecPorc, *pelig){  // *pelig
