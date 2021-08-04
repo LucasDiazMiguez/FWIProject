@@ -219,8 +219,8 @@ function calculaIndices(datos) {
     let fecha = datos[0];
     hh = datos[2]; //Humedad
     tt = Number(datos[1].replace(/,/g, ".")); //Temperatura
-    ww = datos[4]; //viento
-    ro = datos[5]; //lluvia
+    ww = Number(datos[4].replace(/,/g, ".")); //viento
+    ro = Number(datos[5].replace(/,/g, ".")); //lluvia
     mes = `${fecha[4]}${fecha[5]}`; //mes
     FFMC = calculaFFMC(hh, tt, ww, ro, FFMC);
     DMC = calculaDMC(hh, tt, ro, DMC, mes - 1); // usa mes como índice que comienza en 0
@@ -363,7 +363,7 @@ function createPDF() {
           fillColor: function (rowIndex) {
             return rowIndex % 2 === 0 ? "#CCCCCC" : null;
           },
-        }
+        },
       },
     ],
     defaultStyle: {
