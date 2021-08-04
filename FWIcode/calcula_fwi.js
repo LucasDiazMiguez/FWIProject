@@ -44,86 +44,7 @@ let mes = 9;
 let FFMC;
 let DMC;
 let DC;
-
-function corroborarDatos() {
-  FFMC = Number(document.getElementById("idFFMC").value);
-  DMC = Number(document.getElementById("idDMC").value);
-  DC = Number(document.getElementById("idDC").value);
-  //! TODO agregar una correción de datos importantes! corrobando que datos son correctos y que datos no, y haya ingresado todos  los datos
-  console.log(`FFMC`, FFMC);
-  console.log(`DMC`, DMC);
-  console.log(`DC`, DC);
-  if (true) {
-    document.getElementById("results-table").innerHTML = `
-    <table style="width:100%" id="data-table">
-      <tr>
-        <th>Fecha</th>
-        <th>Temperatura </th>
-        <th>Humedad Relativa</th>
-        <th>Dirección del viento</th>
-        <th>Velocidad del viento</th>
-        <th>precipitaciones</th>
-        <th>FFMC</th>
-        <th>DMC</th>
-        <th>DC</th>
-        <th>ISI</th>
-        <th>BUI</th>
-        <th>FWI</th>
-        
-      </tr>
-    </table> 
-    `;
-    workingWithData();
-  }
-}
-function calculaIndices(datos) {
-  hh = datos[2]; //Humedad
-  tt = Number(datos[1].replace(/,/g, ".")); //Temperatura
-  ww = datos[4]; //viento
-  ro = datos[5]; //lluvia
-  let fecha = datos[0];
-  mes = `${fecha[4]}${fecha[5]}`; //mes
-  // console.log(`mes`,mes)
-  // console.log(`mes`,typeof(mes))
-  FFMC = calculaFFMC(hh, tt, ww, ro, FFMC);
-  console.log(`DMC`, DMC);
-  DMC = calculaDMC(hh, tt, ro, DMC, mes - 1); // usa mes como índice que comienza en 0
-  DC = calculaDC(tt, ro, DC, mes - 1); // usa mes como índice que comienza en 0
-  ISI = calculaISI(FFMC, ww);
-  BUI = calculaBUI(DMC, DC);
-  FWI = calculaFWI(BUI, ISI);
-
-  DSR = 0.0272 * Math.pow(FWI, 1.77); //(31)
-  document.getElementById("data-table").innerHTML =
-    document.getElementById("data-table").innerHTML +
-    `<tr>
-      <td> ${fecha}</td>
-      <td> ${tt}</td>
-      <td> ${hh}</td>
-      <td> ${datos[3]}</td>
-      <td> ${ww}</td>
-      <td> ${ro}</td>
-      <td> ${FFMC.toFixed(3)}</td>
-      <td> ${DMC.toFixed(3)}</td>
-      <td> ${DC.toFixed(3)}</td>
-      <td> ${ISI.toFixed(3)}</td>
-      <td> ${BUI.toFixed(3)}</td>
-      <td> ${FWI.toFixed(3)}</td>
-    </tr>`;
-  // "nuevos valores: " +
-  // "FFMC=" +
-  // FFMC.toFixed(3) +
-  // ", DMC=" +
-  // DMC.toFixed(3) +
-  // ", DC=" +
-  // DC.toFixed(3) +
-  // ", ISI=" +
-  // ISI.toFixed(3) +
-  // ", BUI=" +
-  // BUI.toFixed(3) +
-  // ", FWI=" +
-  // FWI.toFixed(3);
-}
+const results = [];
 
 //----------:------------------------------------------------------------------------//
 // HH: humedad relativa, TT: temperatura, WW: velocidad viento, Ro: lluvia anterior, Fo: FFMC anterior: FFMC cero
@@ -171,7 +92,6 @@ function calculaFFMC(HH, TT, WW, Ro, Fo) {
 //----------------------------------------------------------------------------------//
 function calculaDMC(HH, TT, Ro, Po, MM) {
   let re, Mo, b, Mr, Pr, K;
-  console.log(`Po----→`, Po);
   if (Ro > 1.5) {
     re = 0.9 * Ro - 1.27; // (11)
     Mo = 20 + Math.exp(5.6348 - Po / 43.43); // (12)
@@ -242,6 +162,37 @@ function calculaFWI(U, R) {
   return S;
 }
 
+function corroborarDatos() {
+  FFMC = Number(document.getElementById("idFFMC").value);
+  DMC = Number(document.getElementById("idDMC").value);
+  DC = Number(document.getElementById("idDC").value);
+  //! TODO agregar una correción de datos importantes! corrobando que datos son correctos y que datos no, y haya ingresado todos  los datos
+  console.log(`FFMC`, FFMC);
+  console.log(`DMC`, DMC);
+  console.log(`DC`, DC);
+  if (true) {
+    document.getElementById("results-table").innerHTML = `
+    <table style="width:100%" id="data-table">
+      <tr>
+        <th>Fecha</th>
+        <th>Temperatura </th>
+        <th>Humedad Relativa</th>
+        <th>Dirección del viento</th>
+        <th>Velocidad del viento</th>
+        <th>precipitaciones</th>
+        <th>FFMC</th>
+        <th>DMC</th>
+        <th>DC</th>
+        <th>ISI</th>
+        <th>BUI</th>
+        <th>FWI</th>
+        
+      </tr>
+    </table> 
+    `;
+    workingWithData();
+  }
+}
 function workingWithData() {
   const input = document.getElementById("input-file");
   let files = input.files;
@@ -254,7 +205,6 @@ function workingWithData() {
     const table = document.getElementById("data-table");
     lines.forEach((e) => {
       let datos = e.split(/[ \t]+/);
-
       calculaIndices(datos);
     });
     // textarea.value = lines.join(`\n`);
@@ -262,6 +212,68 @@ function workingWithData() {
 
   reader.onerror = (e) => alert(e.target.error.name);
   reader.readAsText(file);
+}
+function calculaIndices(datos) {
+  if (!datos[0] == "") {
+    //! para que no ejecute una vez más
+    let fecha = datos[0];
+    hh = datos[2]; //Humedad
+    tt = Number(datos[1].replace(/,/g, ".")); //Temperatura
+    ww = datos[4]; //viento
+    ro = datos[5]; //lluvia
+    mes = `${fecha[4]}${fecha[5]}`; //mes
+    FFMC = calculaFFMC(hh, tt, ww, ro, FFMC);
+    DMC = calculaDMC(hh, tt, ro, DMC, mes - 1); // usa mes como índice que comienza en 0
+    DC = calculaDC(tt, ro, DC, mes - 1); // usa mes como índice que comienza en 0
+    ISI = calculaISI(FFMC, ww);
+    BUI = calculaBUI(DMC, DC);
+    FWI = calculaFWI(BUI, ISI);
+
+    DSR = 0.0272 * Math.pow(FWI, 1.77); //(31)
+    results.push([
+      fecha,
+      tt,
+      hh,
+      datos[3],
+      ww,
+      ro,
+      FFMC.toFixed(3),
+      DMC.toFixed(3),
+      DC.toFixed(3),
+      ISI.toFixed(3),
+      BUI.toFixed(3),
+      FWI.toFixed(3),
+    ]);
+    document.getElementById("data-table").innerHTML =
+      document.getElementById("data-table").innerHTML +
+      `<tr>
+    <td> ${fecha}</td>
+    <td> ${tt}</td>
+    <td> ${hh}</td>
+    <td> ${datos[3]}</td>
+    <td> ${ww}</td>
+    <td> ${ro}</td>
+    <td> ${FFMC.toFixed(3)}</td>
+    <td> ${DMC.toFixed(3)}</td>
+    <td> ${DC.toFixed(3)}</td>
+    <td> ${ISI.toFixed(3)}</td>
+    <td> ${BUI.toFixed(3)}</td>
+    <td> ${FWI.toFixed(3)}</td>
+    </tr>`;
+    // "nuevos valores: " +
+    // "FFMC=" +
+    // FFMC.toFixed(3) +
+    // ", DMC=" +
+    // DMC.toFixed(3) +
+    // ", DC=" +
+    // DC.toFixed(3) +
+    // ", ISI=" +
+    // ISI.toFixed(3) +
+    // ", BUI=" +
+    // BUI.toFixed(3) +
+    // ", FWI=" +
+    // FWI.toFixed(3);
+  }
 }
 
 const obj = [{}];
@@ -306,3 +318,59 @@ function peligrosidadXtipo(isi, bui, GSecPorc, *pelig){  // *pelig
 } 
 
 */
+function createPDF() {
+  results.unshift([
+    //agrega las columnas a results
+    "fecha",
+    "Temperatura",
+    "humedad",
+    "Dirección del viento",
+    "viento",
+    "Precipitaciones",
+    "FFMC",
+    "DMC",
+    "DC",
+    "ISI",
+    "BUI",
+    "FWI",
+  ]);
+  var docDefinition = {
+    content: [
+      {
+        layout: "lightHorizontalLines", // optional
+        table: {
+          // headers are automatically repeated if the table spans over multiple pages
+          // you can declare how many rows should be treated as headers
+          headerRows: 1,
+          widths: [
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+            "auto",
+          ],
+
+          body: results,
+        },
+        layout: {
+          fillColor: function (rowIndex) {
+            return rowIndex % 2 === 0 ? "#CCCCCC" : null;
+          },
+        }
+      },
+    ],
+    defaultStyle: {
+      fontSize: 9,
+      bold: true,
+    },
+  };
+
+  pdfMake.createPdf(docDefinition).download();
+}

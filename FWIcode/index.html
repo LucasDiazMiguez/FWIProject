@@ -9,6 +9,9 @@
   <script src="https://unpkg.com/read-excel-file@4.x/bundle/read-excel-file.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
     integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/pdfmake.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/vfs_fonts.js"></script>
 </head>
 
 <body>
@@ -25,22 +28,23 @@
   <!-- <div class="container">
     <div class="row">
       <div class="col-2">
-
+        
       </div>
       <div class="col-2">
-
+        
       </div>
       <div class="col-2">
-
+        
       </div>
       <div class="col-2">
-
+        
       </div>
     </div>
   </div> -->
-
-
+  
+  
   <button class="m-4 p-1" onclick="corroborarDatos()"> Calcular FWI</button>
+  <button onclick="createPDF()" type="submit" id="download-button" value="Descargar pdf">Download file</button>
   <div id="results-table">
 
   </div>
@@ -59,4 +63,4 @@
     }
   </script> -->
 
-  <!-- ! Grabar un archivo de salida -->
+<!-- ! Grabar un archivo de salida -->
