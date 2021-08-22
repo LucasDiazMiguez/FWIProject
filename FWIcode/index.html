@@ -2,65 +2,92 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FWI project</title>
   <script src="https://unpkg.com/read-excel-file@4.x/bundle/read-excel-file.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
-    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous" />
 
- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/pdfmake.js"></script>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/vfs_fonts.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/pdfmake.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.2/vfs_fonts.js"></script>
+
+  <!-- EXCEL -->
+  <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
-  <p>Calcula FWI</p>
-  <!--  <input id="id1" type="number" min="100" max="550" required> -->
-  <h3>Ingrese los primeros valores iniciales y el archivo .txt : </h3>
-  <div class="d-flex m-3 p-3 justify-content-start">
-    <label class="p-3"> FFMC <input id="idFFMC" type="number" value=21.2 required> </label>
-    <label class="p-3"> DMC <input id="idDMC" type="number" value=0.1 required> </label>
-    <label class="p-3"> DC <input id="idDC" type="number" value=0.6 required> </label>
-
-  </div>
-  <input class=" m-4 p-4" type="file" id="input-file">
-  <!-- <div class="container">
-    <div class="row">
-      <div class="col-2">
-        
-      </div>
-      <div class="col-2">
-        
-      </div>
-      <div class="col-2">
-        
-      </div>
-      <div class="col-2">
-        
-      </div>
+  <div class="container-fluid">
+    <div class="row m-3 justify-content-center">
+      <h1 class="p-1 m-5">FWI calculator</h1>
     </div>
-  </div> -->
-  
-  
-  <button class="m-4 p-1" onclick="corroborarDatos()"> Calcular FWI</button>
-  <button onclick="createPDF()" type="submit" id="download-button" value="Descargar pdf">Download file</button>
-  <div id="results-table">
-
+    <div class="row m-3 justify-content-start">
+      <h5>Ingrese los metadatos del archivo de salida</h5>
+    </div>
+    <div class="row m-3 justify-content-start">
+      <label class="p-2 m-1 rounded-lg" for="lugar"> Lugar </label>
+      <input class="p-2 m-1 rounded-lg" name="lugar" id="lugar" type="text" value="21.2" required />
+      <label class="p-2 m-1 rounded-lg" for="estacion-meterológica">
+        Estación Meterológica </label>
+      <input class="p-2 m-1 rounded-lg" name="estacion-meterologica" id="estacion-meterologica" type="text" value="0.1"
+        required />
+      <label class="p-2 m-1 rounded-lg" for="fecha-inicio"> Fecha de inicio</label>
+      <input class="p-2 m-1 rounded-lg" name="fecha-inicio" id="fecha-inicio" type="date" value="0.6" required />
+      <label class="p-2 m-1 rounded-lg" for="fecha-fin"> Fecha de fin </label>
+      <input class="p-2 m-1 rounded-lg" id="fecha-fin" name="fecha-fin" type="date" value="0.6" required />
+    </div>
+    <div class="row m-3 justify-content-start">
+      <h5>Ingrese los datos iniciales del simulador</h5>
+    </div>
+    <div class="row m-3 justify-content-start">
+      <label class="p-2 m-1 rounded-lg" for="FFMC"> FFMC</label>
+      <input class="p-2 m-1 rounded-lg" name="FFMC " id="idFFMC" type="number" value="21.2" required />
+      <label class="p-2 m-1 rounded-lg" for="DMC"> DMC </label>
+      <input class="p-2 m-1 rounded-lg" name="DMC" id="idDMC" type="number" value="0.1" required />
+      <label class="p-2 m-1 rounded-lg" for="DC"> DC </label>
+      <input class="p-2 m-1 rounded-lg" name="DC" id="idDC" type="number" value="0.6" required />
+    </div>
+    <div class="row m-3 justify-content-start">
+      <h5>Ingrese el file.txt</h5>
+    </div>
+    <div class="row m-3 justify-content-start">
+      <input class="p-2 m-1 rounded-lg" type="file" id="input-file" />
+    </div>
+    <div class="row m-3 justify-content-start">
+      <h5>Calcule el FWI</h5>
+    </div>
+    <div class="row m-3 justify-content-start">
+      <button onclick="corroborarDatos()" class="p-2 m-1 rounded-lg" type="submit" id="download-button-pdf"
+        value="Descargar pdf">
+        Calcular FWI
+      </button>
+    </div>
+    
+    <div class="row m-3 justify-content-start">
+      <h5>Ingrese nombre del archivo a descargar y seleccione.</h5>
+    </div>
+    
   </div>
+  <div class="row m-3 justify-content-start">
+    <label for="file-name" class="p-2 m-1 rounded-lg">Nombre del archivo a descargar</label>
+    <input type="text" class="p-2 m-2 rounded-lg w-25" placeholder="Lugar_EstacionMeteorologica_Año" name="file-name"
+    id="file-name">
+    <button onclick="createPDF()" class="p-2 m-1 rounded-lg" type="submit" id="download-button-pdf"
+      value="Descargar pdf">
+      Guardar pdf
+    </button>
+    <button onclick="createEXCEL()" class="p-2 m-1 rounded-lg" type="submit" id="download-button-excel"
+      value="Descargar excel">
+      Guardar excel
+    </button>
+  </div>
+</div>
+  <!--  <input id="id1" type="number" min="100" max="550" required> -->
+
+  <div id="results-table"></div>
 
   <script src="calcula_fwi.js"></script>
 </body>
 
 </html>
-<!-- <script> 
-  "use strict";  // the script works the “modern” way
-  function showFile(input) {
-      let file = input.files[0];
-
-      alert(`File name: ${file.name}`); // e.g my.png
-      alert(`Last modified: ${file.lastModified}`); // e.g 1552830408824
-    }
-  </script> -->
-
-<!-- ! Grabar un archivo de salida -->

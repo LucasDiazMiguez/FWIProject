@@ -374,3 +374,51 @@ function createPDF() {
 
   pdfMake.createPdf(docDefinition).download();
 }
+
+function createEXCEL() {
+  const wb = XLSX.utils.book_new();
+
+  const fecha = document.getElementById("fecha-inicio");
+  const estacion_meterologica = document.getElementById(
+    "estacion-meterologica"
+  );
+  const lugar = document.getElementById("lugar");
+  //obtener fecha
+  wb.Props = {
+    Title: "FWI",
+    Subject: "FWI",
+    Author: "Parques nacionales",
+    CreatedDate: new Date(2017, 12, 19),
+  };
+
+  wb.SheetNames.push("Test Sheet");
+
+  const ws_data = [[fecha, estacion_meterologica, lugar], ...results]; //a row with 2 columns
+  const ws = XLSX.utils.aoa_to_sheet(ws_data);
+  wb.Sheets["Test Sheet"] = ws;
+
+  const wbout = XLSX.write(wb, { bookType: "xlsx", type: "binary" });
+
+  function s2ab(s) {
+    var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+    var view = new Uint8Array(buf); //create uint8array as viewer
+    for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff; //convert to octet
+    return buf;
+  }
+
+  saveAs(
+    new Blob([s2ab(wbout)], { type: "application/octet-stream" }),
+    "test.xlsx"
+  );
+}
+
+// let lugar = document.getElementById("lugar").value;
+// let estacion_meterologica = document.getElementById(
+//   "estacion-meterologica"
+// ).value;
+// let fecha_inicio = document.getElementById("fecha-inicio").value;
+// if (lugar && fecha_inicio && estacion_meterologica) {
+//   document.getElementById(
+//     "file-name"
+//   ).value = `${lugar}${estacion_meterologica}${fecha_inicio}`;
+// }
