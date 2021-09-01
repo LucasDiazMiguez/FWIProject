@@ -27,15 +27,12 @@
     </div>
     <div class="row m-3 justify-content-start">
       <label class="p-2 m-1 rounded-lg" for="lugar"> Lugar </label>
-      <input class="p-2 m-1 rounded-lg" name="lugar" id="lugar" type="text" value="21.2" required />
+      <input class="p-2 m-1 rounded-lg changeOutputName" name="lugar" id="lugar" type="text" value="21.2" required />
       <label class="p-2 m-1 rounded-lg" for="estacion-meterológica">
         Estación Meterológica </label>
-      <input class="p-2 m-1 rounded-lg" name="estacion-meterologica" id="estacion-meterologica" type="text" value="0.1"
-        required />
-      <label class="p-2 m-1 rounded-lg" for="fecha-inicio"> Fecha de inicio</label>
-      <input class="p-2 m-1 rounded-lg" name="fecha-inicio" id="fecha-inicio" type="date" value="0.6" required />
-      <label class="p-2 m-1 rounded-lg" for="fecha-fin"> Fecha de fin </label>
-      <input class="p-2 m-1 rounded-lg" id="fecha-fin" name="fecha-fin" type="date" value="0.6" required />
+      <input class="p-2 m-1 rounded-lg changeOutputName" name="estacion-meterologica" id="estacion-meteorologica"
+        type="text" value="0.1" required />
+
     </div>
     <div class="row m-3 justify-content-start">
       <h5>Ingrese los datos iniciales del simulador</h5>
@@ -48,8 +45,12 @@
       <label class="p-2 m-1 rounded-lg" for="DC"> DC </label>
       <input class="p-2 m-1 rounded-lg" name="DC" id="idDC" type="number" value="0.6" required />
     </div>
-    <div class="row m-3 justify-content-start">
-      <h5>Ingrese el file.txt</h5>
+    <div class="row m-3 p-3 justify-content-start align-items-center">
+      <h5>Ingrese el archivo con datos meteorológicos</h5>
+      <label class="p-2 m-1 rounded-lg" for="fecha-inicio"> Fecha de inicio</label>
+      <input readonly class="p-2 m-1 rounded-lg" name="fecha-inicio" id="fecha-inicio" required />
+      <label class="p-2 m-1 rounded-lg" for="fecha-fin"> Fecha de fin </label>
+      <input readonly class="p-2 m-1 rounded-lg" id="fecha-fin" name="fecha-fin" required />
     </div>
     <div class="row m-3 justify-content-start">
       <input class="p-2 m-1 rounded-lg" type="file" id="input-file" />
@@ -63,16 +64,16 @@
         Calcular FWI
       </button>
     </div>
-    
+
     <div class="row m-3 justify-content-start">
       <h5>Ingrese nombre del archivo a descargar y seleccione.</h5>
     </div>
-    
+
   </div>
   <div class="row m-3 justify-content-start">
     <label for="file-name" class="p-2 m-1 rounded-lg">Nombre del archivo a descargar</label>
     <input type="text" class="p-2 m-2 rounded-lg w-25" placeholder="Lugar_EstacionMeteorologica_Año" name="file-name"
-    id="file-name">
+      id="file-name">
     <button onclick="createPDF()" class="p-2 m-1 rounded-lg" type="submit" id="download-button-pdf"
       value="Descargar pdf">
       Guardar pdf
@@ -82,7 +83,7 @@
       Guardar excel
     </button>
   </div>
-</div>
+  </div>
   <!--  <input id="id1" type="number" min="100" max="550" required> -->
 
   <div id="results-table"></div>

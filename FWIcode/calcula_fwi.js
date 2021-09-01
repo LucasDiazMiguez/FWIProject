@@ -202,7 +202,6 @@ function workingWithData() {
   reader.onload = (e) => {
     const file = e.target.result;
     const lines = file.split(/\r\n|\n/);
-    const table = document.getElementById("data-table");
     lines.forEach((e) => {
       let datos = e.split(/[ \t]+/);
       calculaIndices(datos);
@@ -276,7 +275,57 @@ function calculaIndices(datos) {
   }
 }
 
+let inputfile = document.getElementById("input-file");
+addEventListener("input", function writeDates(event) {
+  let files = inputfile.files;
+  if (files.length == 0) return;
+  const file = files[0];
+  let reader = new FileReader();
+  reader.onload = (e) => {
+    const file = e.target.result;
+    const lines = file.split(/\r\n|\n/);
+    console.log(`lines.length`, lines.length);
+    lines.forEach((e) => {
+      let datos = e.split(/[ \t]+/);
+      calculaIndices(datos);
+    });
+  };
+});
+
 const obj = [{}];
+
+function readFile(file) {
+  var reader = new FileReader();
+  reader.onload = (e) => {
+    const file = e.target.result;
+    const lines = file.split(/\r\n|\n/);
+    console.log(`lines.length`, lines.length);
+    let firstLine = lines[0].split(/[ \t]+/);
+    let finalLine = lines[lines.length - 2].split(/[ \t]+/);
+    let fechaInicial = document.getElementById("fecha-inicio");
+    let fechaFinal = document.getElementById("fecha-fin");
+    console.log(
+      `firstLine[0][0]`,
+      firstLine[0][4] + firstLine[0][1] + firstLine[0][2] + firstLine[0][3]
+    );
+    fechaInicial.value = `${firstLine[0][6] + firstLine[0][7]} /${
+      firstLine[0][4]
+    }${firstLine[0][5]} / ${
+      firstLine[0][0] + firstLine[0][1] + firstLine[0][2] + firstLine[0][3]
+    }`;
+    fechaFinal.value = `${finalLine[0][6] + finalLine[0][7]} /${
+      finalLine[0][4]
+    }${finalLine[0][5]} / ${
+      finalLine[0][0] + finalLine[0][1] + finalLine[0][2] + finalLine[0][3]
+    }`;
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById("input-file").onchange = function (e) {
+  readFile(e.currentTarget.files[0]);
+};
+
 //----------------------------------------------------------------------------------//
 /*
 function peligrosidadXtipo(isi, bui, GSecPorc, *pelig){  // *pelig
@@ -378,11 +427,11 @@ function createPDF() {
 function createEXCEL() {
   const wb = XLSX.utils.book_new();
 
-  const fecha = document.getElementById("fecha-inicio");
+  const fecha = document.getElementById("fecha-inicio").value;
   const estacion_meterologica = document.getElementById(
-    "estacion-meterologica"
-  );
-  const lugar = document.getElementById("lugar");
+    "estacion-meteorologica"
+  ).value;
+  const lugar = document.getElementById("lugar").value;
   //obtener fecha
   wb.Props = {
     Title: "FWI",
@@ -392,8 +441,28 @@ function createEXCEL() {
   };
 
   wb.SheetNames.push("Test Sheet");
-
-  const ws_data = [[fecha, estacion_meterologica, lugar], ...results]; //a row with 2 columns
+  console.log(`fecha`, fecha);
+  console.log(`estacion_meterologica`, estacion_meterologica);
+  console.log(`lugar`, lugar);
+  const ws_data = [
+    [fecha, estacion_meterologica, lugar],
+    [
+      //agrega las columnas a results
+      "fecha",
+      "Temperatura",
+      "humedad",
+      "Dirección del viento",
+      "viento",
+      "Precipitaciones",
+      "FFMC",
+      "DMC",
+      "DC",
+      "ISI",
+      "BUI",
+      "FWI",
+    ],
+    ...results,
+  ]; //a row with 2 columns
   const ws = XLSX.utils.aoa_to_sheet(ws_data);
   wb.Sheets["Test Sheet"] = ws;
 
@@ -405,20 +474,21 @@ function createEXCEL() {
     for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff; //convert to octet
     return buf;
   }
-
+  let fileName = document.getElementById("file-name").value;
   saveAs(
     new Blob([s2ab(wbout)], { type: "application/octet-stream" }),
-    "test.xlsx"
+    `${fileName}.xlsx`
   );
 }
 
-// let lugar = document.getElementById("lugar").value;
-// let estacion_meterologica = document.getElementById(
-//   "estacion-meterologica"
-// ).value;
-// let fecha_inicio = document.getElementById("fecha-inicio").value;
-// if (lugar && fecha_inicio && estacion_meterologica) {
-//   document.getElementById(
-//     "file-name"
-//   ).value = `${lugar}${estacion_meterologica}${fecha_inicio}`;
-// }
+let nameinput = document.getElementsByClassName("changeOutputName");
+console.log(`nameinput`, nameinput);
+console.log(`nameinput`, typeof nameinput);
+
+for (let i = 0; i < nameinput.length; i++) {
+  nameinput[i].addEventListener("input", function rellenarOutputName(event) {
+    document.getElementById(
+      "file-name"
+    ).defaultValue = `${nameinput[0].value}_${nameinput[1].value}`;
+  });
+}
