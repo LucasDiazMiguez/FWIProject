@@ -483,7 +483,8 @@ function peligrosidadXtipo(isi, bui, GSecPorc, *pelig){  // *pelig
 
 */
 function createPDF() {
-  results.unshift([
+  const resultsHelper = results.map((e) => e);
+  resultsHelper.unshift([
     //agrega las columnas a results
     "fecha",
     "Temperatura",
@@ -499,8 +500,7 @@ function createPDF() {
     "FWI",
   ]);
   let nameinput = document.getElementsByClassName("changeOutputName");
-  guardarEnLocalStorage(results.length);
-  console.log(`results.length`, results.length);
+  guardarEnLocalStorage(resultsHelper.length - 1);
   for (let i = 0; i < nameinput.length; i++) {
     nameinput[i].addEventListener("input", function rellenarOutputName(event) {
       document.getElementById(
@@ -532,7 +532,7 @@ function createPDF() {
             "auto",
           ],
 
-          body: results,
+          body: resultsHelper,
         },
         layout: {
           fillColor: function (rowIndex) {
@@ -589,6 +589,7 @@ function createEXCEL() {
   ]; //a row with 2 columns
   const ws = XLSX.utils.aoa_to_sheet(ws_data);
   wb.Sheets["Test Sheet"] = ws;
+  guardarEnLocalStorage(results.length);
 
   const wbout = XLSX.write(wb, { bookType: "xlsx", type: "binary" });
 
