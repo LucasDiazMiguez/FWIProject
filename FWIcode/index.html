@@ -30,14 +30,25 @@
       <input class="p-2 m-1 rounded-lg changeOutputName" name="lugar" id="lugar" type="text" value="21.2" required />
       <label class="p-2 m-1 rounded-lg" for="estacion-meterológica">
         Estación Meterológica </label>
-      <input class="p-2 m-1 rounded-lg changeOutputName" name="estacion-meterologica" id="estacion-meteorologica"
-        type="text" value="0.1" required />
+      <select class="changeOutputName" name="estacion-meterologica" id="estacion-meteorologica" type="text" value="0.1"
+        required>
+        <option value="Bolsón">Bolsón</option>
+        <option value="Isla huemul">Isla huemul</option>
+        <option value="arrayan">arrayan</option>
+        <option value="comahue">comahue</option>
+      </select>
 
     </div>
     <div class="row m-3 justify-content-start">
       <h5>Ingrese los datos iniciales del simulador</h5>
     </div>
     <div class="row m-3 justify-content-start">
+      <select name="pets" id="em-select">
+        <option value="Bolsón">Bolsón</option>
+        <option value="Isla huemul">Isla huemul</option>
+        <option value="arrayan">arrayan</option>
+        <option value="comahue">comahue</option>
+      </select>
       <label class="p-2 m-1 rounded-lg" for="FFMC"> FFMC</label>
       <input class="p-2 m-1 rounded-lg" name="FFMC " id="idFFMC" type="number" value="21.2" required />
       <label class="p-2 m-1 rounded-lg" for="DMC"> DMC </label>
@@ -84,11 +95,24 @@
     </button>
   </div>
   </div>
-  <!--  <input id="id1" type="number" min="100" max="550" required> -->
+  <input type="file" id="fileUploadXLSX" />
+  <input type="button" id="uploadXLSX" value="Upload" onclick="UploadProcessXLSX()" />
+  <br />
 
   <div id="results-table"></div>
 
+  <div id="ExcelTableXLSX"></div>
+
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/xlsx.full.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/jszip.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xls/0.7.4-a/xls.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.13.5/jszip.js"></script>
+
+
+
   <script src="calcula_fwi.js"></script>
+
 </body>
 
 </html>

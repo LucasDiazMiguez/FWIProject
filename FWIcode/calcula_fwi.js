@@ -46,6 +46,12 @@ let DMC;
 let DC;
 const results = [];
 
+let EM = [
+  { name: "Bolsón", results: [1, 2, 3] },
+  { name: "Isla huemul", results: [1, 2, 3] },
+  { name: "arrayan", results: [1, 2, 3] },
+  { name: "Comahue", results: [1, 2, 3] },
+];
 //----------:------------------------------------------------------------------------//
 // HH: humedad relativa, TT: temperatura, WW: velocidad viento, Ro: lluvia anterior, Fo: FFMC anterior: FFMC cero
 function calculaFFMC(HH, TT, WW, Ro, Fo) {
@@ -326,6 +332,115 @@ document.getElementById("input-file").onchange = function (e) {
   readFile(e.currentTarget.files[0]);
 };
 
+//calcular para estaciones con dferentes horarios
+function UploadProcessXLSX() {
+  //Reference the FileUpload element.
+  var fileUpload = document.getElementById("fileUploadXLSX");
+  //Validate whether File is valid Excel file.
+  var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.xls|.xlsx)$/;
+  if (regex.test(fileUpload.value.toLowerCase())) {
+    if (typeof FileReader != "undefined") {
+      var reader = new FileReader();
+
+      //For Browsers other than IE.
+      if (reader.readAsBinaryString) {
+        reader.onload = function (e) {
+          GetTableFromExcelXLSX(e.target.result);
+        };
+        reader.readAsBinaryString(fileUpload.files[0]);
+      } else {
+        //For IE Browser.
+        reader.onload = function (e) {
+          var data = "";
+          var bytes = new Uint8Array(e.target.result);
+          for (var i = 0; i < bytes.byteLength; i++) {
+            data += String.fromCharCode(bytes[i]);
+          }
+
+          GetTableFromExcelXLSX(data);
+        };
+        reader.readAsArrayBuffer(fileUpload.files[0]);
+      }
+    } else {
+      alert("This browser does not support HTML5.");
+    }
+  } else {
+    alert("Please upload a valid Excel file.");
+  }
+}
+
+function corroborarDatosXLSX() {
+  FFMC = Number(document.getElementById("idFFMC").value);
+  DMC = Number(document.getElementById("idDMC").value);
+  DC = Number(document.getElementById("idDC").value);
+  //! TODO agregar una correción de datos importantes! corrobando que datos son correctos y que datos no, y haya ingresado todos  los datos
+  console.log(`FFMC`, FFMC);
+  console.log(`DMC`, DMC);
+  console.log(`DC`, DC);
+  if (true) {
+    document.getElementById("results-table").innerHTML = `
+    <table style="width:100%" id="data-table">
+      <tr>
+        <th>Fecha</th>
+        <th>Temperatura </th>
+        <th>Humedad Relativa</th>
+        <th>Dirección del viento</th>
+        <th>Velocidad del viento</th>
+        <th>precipitaciones</th>
+        <th>FFMC</th>
+        <th>DMC</th>
+        <th>DC</th>
+        <th>ISI</th>
+        <th>BUI</th>
+        <th>FWI</th>
+        
+      </tr>
+    </table> 
+    `;
+  }
+}
+function GetTableFromExcelXLSX(data) {
+  //Read the Excel File data in binary
+  corroborarDatosXLSX();
+  var workbook = XLSX.read(data, {
+    type: "binary",
+  });
+
+  //get the name of First Sheet.
+  var Sheet = workbook.SheetNames[0];
+
+  //Read all rows from First Sheet into an JSON array.
+  var excelRows = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[Sheet]);
+  console.log(`excelRows.length`, excelRows.length);
+  excelRows.forEach((row) => {
+    // console.log(`row`, row);
+    const datos = [
+      `${row.__EMPTY}`,
+      `${row.__EMPTY_1}`,
+      `${row.__EMPTY_2}`,
+      `${row.__EMPTY_3}`,
+      `${row.__EMPTY_4}`,
+      `${row.__EMPTY_5}`,
+    ];
+    calculaIndices(datos);
+  });
+}
+function guardarEnLocalStorage(largo) {
+  const ultimosDatos = results[largo - 1];
+  console.log(`resutls[largo-1]`, results[largo]);
+  const datosRequeridos = ultimosDatos.slice(6, 9);
+  console.log(`datosRequeridos`, datosRequeridos);
+  const em = document.getElementById("em-select");
+  const opcion = em.options[em.selectedIndex];
+  const object = {
+    FFMC: datosRequeridos[0],
+    DMC: datosRequeridos[1],
+    DC: datosRequeridos[2],
+  };
+  console.log(`object`, object);
+  localStorage.setItem(`${opcion.text}`, JSON.stringify(object));
+}
+
 //----------------------------------------------------------------------------------//
 /*
 function peligrosidadXtipo(isi, bui, GSecPorc, *pelig){  // *pelig
@@ -383,7 +498,18 @@ function createPDF() {
     "BUI",
     "FWI",
   ]);
-  var docDefinition = {
+  let nameinput = document.getElementsByClassName("changeOutputName");
+  guardarEnLocalStorage(results.length);
+  console.log(`results.length`, results.length);
+  for (let i = 0; i < nameinput.length; i++) {
+    nameinput[i].addEventListener("input", function rellenarOutputName(event) {
+      document.getElementById(
+        "file-name"
+      ).defaultValue = `${nameinput[0].value}_${nameinput[1].value}`;
+    });
+  }
+  let docDefinition = {
+    header: `Lugar: ${nameinput[0].value}        ||      Estación meterológica: ${nameinput[1].value}`,
     content: [
       {
         layout: "lightHorizontalLines", // optional
@@ -420,8 +546,8 @@ function createPDF() {
       bold: true,
     },
   };
-
-  pdfMake.createPdf(docDefinition).download();
+  let fileName = document.getElementById("file-name").value;
+  pdfMake.createPdf(docDefinition).download(`${fileName}.pdf`);
 }
 
 function createEXCEL() {
@@ -441,9 +567,7 @@ function createEXCEL() {
   };
 
   wb.SheetNames.push("Test Sheet");
-  console.log(`fecha`, fecha);
-  console.log(`estacion_meterologica`, estacion_meterologica);
-  console.log(`lugar`, lugar);
+  console.log(`results`, results);
   const ws_data = [
     [fecha, estacion_meterologica, lugar],
     [
@@ -482,8 +606,6 @@ function createEXCEL() {
 }
 
 let nameinput = document.getElementsByClassName("changeOutputName");
-console.log(`nameinput`, nameinput);
-console.log(`nameinput`, typeof nameinput);
 
 for (let i = 0; i < nameinput.length; i++) {
   nameinput[i].addEventListener("input", function rellenarOutputName(event) {
@@ -492,3 +614,20 @@ for (let i = 0; i < nameinput.length; i++) {
     ).defaultValue = `${nameinput[0].value}_${nameinput[1].value}`;
   });
 }
+
+const estacion_meterologica = document.getElementById("em-select");
+const firstValues = JSON.parse(
+  localStorage.getItem(`${estacion_meterologica.value}`)
+) || [0, 0, 0];
+document.getElementById("idFFMC").value = firstValues.FFMC;
+document.getElementById("idDMC").value = firstValues.DMC;
+document.getElementById("idDC").value = firstValues.DC;
+estacion_meterologica.addEventListener("change", () => {
+  const values = JSON.parse(
+    localStorage.getItem(`${estacion_meterologica.value}`)
+  ) || [0, 0, 0];
+  console.log(`values`, values.FFMC);
+  document.getElementById("idFFMC").value = values.FFMC;
+  document.getElementById("idDMC").value = values.DMC;
+  document.getElementById("idDC").value = values.DC;
+});
